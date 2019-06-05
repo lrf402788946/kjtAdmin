@@ -13,7 +13,7 @@
         </div>
         <el-dropdown>
           <div class="user-profile-body">
-            <img class="user-avatar" src="https://img.alicdn.com/tfs/TB1ONhloamWBuNjy1XaXXXCbXXa-200-200.png">
+            <img class="user-avatar" src="https://img.alicdn.com/tfs/TB1ONhloamWBuNjy1XaXXXCbXXa-200-200.png" />
             <span class="user-name">淘小宝</span>
           </div>
           <el-dropdown-menu class="user-dropdown" slot="dropdown">
@@ -38,7 +38,6 @@
 </template>
 
 <script>
-
 export default {
   name: 'NavBar',
   methods: {
@@ -52,7 +51,7 @@ export default {
 <style lang="scss" scoped>
 .navbar {
   height: 64px;
-  box-shadow: 0 1px 4px rgba(0,21,41,.08);
+  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
   .user-profile-container {
     position: absolute;
     right: 20px;
@@ -89,7 +88,7 @@ export default {
       border-radius: 4px;
     }
     .user-name {
-      color: rgba(0,0,0,.65);
+      color: rgba(0, 0, 0, 0.65);
     }
     .user-department {
       font-size: 12px;
@@ -104,4 +103,3 @@ export default {
   }
 }
 </style>
-

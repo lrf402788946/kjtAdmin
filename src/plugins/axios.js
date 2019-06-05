@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import newAxios from '@/util/axios';
+import AxiosWrapper from '@/util/axios-wrapper';
 
 const Plugin = {
   install(vue, options) {
@@ -12,7 +12,7 @@ const Plugin = {
       },
     });
     // 4. 添加实例方法
-    vue.prototype.$axios = newAxios;
+    vue.prototype.$axios = new AxiosWrapper(options);
   },
 };
 

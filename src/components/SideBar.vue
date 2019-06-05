@@ -35,7 +35,7 @@
 
 <script>
 import ScrollBar from './ScrollBar.vue';
-import { asideMenuConfig } from '@/menuConfig';
+import { asideMenuConfig } from '@/config/menuConfig';
 
 export default {
   components: { ScrollBar },
