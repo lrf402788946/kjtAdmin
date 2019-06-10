@@ -14,11 +14,11 @@
         <el-dropdown>
           <div class="user-profile-body">
             <img class="user-avatar" src="https://img.alicdn.com/tfs/TB1ONhloamWBuNjy1XaXXXCbXXa-200-200.png" />
-            <span class="user-name" v-if="isLogin">欢迎,{{ (user && user.name) || '' }}</span>
+            <span class="user-name" v-if="isLogin">欢迎,{{ (user && user.user_name) || '' }}</span>
             <span class="user-name" v-else @click="$router.push({ path: '/login' })">请登录</span>
           </div>
           <el-dropdown-menu class="user-dropdown" slot="dropdown">
-            <router-link to="/" v-if="isLogin">
+            <router-link to="/updatePw" v-if="isLogin">
               <el-dropdown-item>
                 修改密码
               </el-dropdown-item>

@@ -76,6 +76,11 @@ const router = new Router({
           name: 'productType',
           component: () => import('./views/type/productType.vue'),
         },
+        {
+          path: '/updatePw',
+          name: 'updatePw',
+          component: () => import('./views/updatePw.vue'),
+        },
       ],
     },
   ],

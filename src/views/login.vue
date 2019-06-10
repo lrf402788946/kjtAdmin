@@ -8,19 +8,21 @@
         <el-form :model="form" :rules="rules" ref="form" style="background:#ffffff;padding:5% 2%;" class="row">
           <el-row>
             <el-col :span="24" style="margin-top:3%;">
-              <el-form-item prop="name">
+              <el-form-item prop="login_id">
                 <el-col :span="6" style="font-weight: 600;font-size: 18px;">用户名</el-col>
-                <el-col :span="15"><el-input v-model="form.name"></el-input></el-col>
+                <el-col :span="15"><el-input v-model="form.login_id"></el-input></el-col>
               </el-form-item>
-              <el-form-item prop="pw">
+              <el-form-item prop="password">
                 <el-col :span="6" style="font-weight: 600;font-size: 18px;">密码</el-col>
-                <el-col :span="15"><el-input v-model="form.pw" type="password"></el-input></el-col>
+                <el-col :span="15"><el-input v-model="form.password" type="password" @keyup.enter.native="toLogin()"></el-input></el-col>
               </el-form-item>
             </el-col>
             <el-col :span="24" style="margin-bottom:5%;">
               <el-col :span="4">&nbsp;</el-col>
               <el-col :span="16">
-                <el-button type="primary" style="width:300px;font-size:16px;" @click="toLogin">登&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;录</el-button>
+                <el-button type="primary" style="width:300px;font-size:16px;" @click="toLogin()">
+                  登&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;录
+                </el-button>
               </el-col>
               <el-col :span="4">&nbsp;</el-col>
             </el-col>
@@ -69,7 +71,9 @@ export default {
       });
     },
     async operation() {
-      let result = await this.login({ data: this.form });
+      let { result } = await this.login({ data: this.form });
+      console.log(result);
+      if (result) this.$router.push({ path: '/' });
     },
     closeAlert() {
       this.$refs.form.resetFields();
