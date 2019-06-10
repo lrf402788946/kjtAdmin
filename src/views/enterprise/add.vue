@@ -1,5 +1,5 @@
 <template lang="html">
-  <div id="dept">
+  <div id="add">
     <el-row style="margin: 2%;background: #fff;text-align:center;">
       <el-col :span="24">
         <levelTwoHeader :title="title"></levelTwoHeader>
@@ -150,7 +150,7 @@ import { levelTwoHeader, searchBar } from '@/components/level_two/index';
 import { mapActions, mapState } from 'vuex';
 import _ from 'lodash';
 export default {
-  name: 'dept',
+  name: 'add',
   components: {
     levelTwoHeader,
   },

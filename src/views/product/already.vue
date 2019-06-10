@@ -33,7 +33,7 @@
               </el-table-column>
               <el-table-column align="center" label="产品类型">
                 <template slot-scope="scope">
-                  {{ scope.row.product_type }}需要过滤出来
+                  {{ { data: proTypeList, searchItem: `code`, value: scope.row.product_type, label: `name` } | getName }}
                 </template>
               </el-table-column>
               <el-table-column align="center" label="价钱">
@@ -153,14 +153,16 @@ export default {
       ],
       tableProps: [], //输出字段存放位置
       currentPage: 1,
+      proTypeList: [],
       totalRow: 1,
       searchInfo: {
         limit: 15,
+        name: '',
       },
       dialog: false,
       dialogTitle: '',
       updateEdit: true,
-      searchProps: [],
+      searchProps: [{ name: '产品名称', prop: 'name' }],
       form: {},
       operationId: '',
       rules: {
@@ -170,12 +172,14 @@ export default {
     };
   },
   computed: {},
-  created() {
+  async created() {
     this.searchTableSetting(`already`);
     this.toSearch();
+    let { dataList = [] } = await this.proTypeOperation({ data: { skip: 0, limit: 0 }, type: `proTypeList` });
+    this.$set(this, `proTypeList`, dataList);
   },
   methods: {
-    ...mapActions(['productOperation']),
+    ...mapActions(['productOperation', 'proTypeOperation']),
     searchTableSetting(type) {
       if (type !== '') {
         let tableprops = _.get(tableConfig, type, []);
@@ -185,7 +189,9 @@ export default {
     async toSearch(item) {
       if (typeof item === 'object') {
         //条件查询
-        // this.searchInfo.name = item.condition2;
+        item.forEach(item => {
+          this.searchInfo[item.prop] = item.value;
+        });
         this.currentPage = 1;
       } else {
         this.currentPage = item ? item : 1;
@@ -219,7 +225,6 @@ export default {
         this.closeAlert();
         return;
       }
-      this.dialog = true;
     },
     closeAlert() {
       this.$refs.form.resetFields();

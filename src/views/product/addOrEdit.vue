@@ -1,8 +1,8 @@
 <template lang="html">
-  <div id="dept">
+  <div id="addOrEdit">
     <el-row style="margin: 2%;background: #fff;text-align:center;">
       <el-col :span="24">
-        <levelTwoHeader :title="getHeader()"></levelTwoHeader>
+        <levelTwoHeader :title="title"></levelTwoHeader>
         <el-row>
           <el-col :span="4">&nbsp;</el-col>
           <el-col :span="14">&nbsp;</el-col>
@@ -14,7 +14,7 @@
         <div class="insert">
           <el-row>
             <el-col :span="11">
-              <el-form :model="input" :rules="rules">
+              <el-form :model="input" :rules="rules" ref="form">
                 <el-row>
                   <el-form-item>
                     <el-col :span="8">名称</el-col>
@@ -38,7 +38,7 @@
                     <el-col :span="8">类型</el-col>
                     <el-col :span="16">
                       <el-select v-model="input.product_type" :disabled="stateInfo" placeholder="请选择类型">
-                        <el-option v-for="(item, index) in productTypeSelectList" :key="index" :label="item.name" :value="item.code"></el-option>
+                        <el-option v-for="(item, index) in proTypeList" :key="index" :label="item.name" :value="item.code"></el-option>
                       </el-select>
                     </el-col>
                   </el-form-item>
@@ -95,16 +95,24 @@
                     </el-col>
                   </el-form-item>
                 </el-row>
-                <el-row>
+                <!-- <el-row>
                   <el-form-item>
                     <el-col :span="8">电子合同</el-col>
                     <el-col :span="16">
-                      <el-upload class="upload-demo" action="/admin/home/common/upload/" :disabled="stateInfo" multiple :on-success="fileUpload" :limit="3">
+                      <el-upload
+                        class="upload-demo"
+                        action="/admin/common/upload/"
+                        :disabled="stateInfo"
+                        multiple
+                        :on-success="fileUpload"
+                        :limit="1"
+                        :file-list="files"
+                      >
                         <el-button size="small" type="primary">点击上传</el-button>
                       </el-upload>
                     </el-col>
                   </el-form-item>
-                </el-row>
+                </el-row> -->
                 <el-row>
                   <el-form-item>
                     <el-col :span="8">供需类型</el-col>
@@ -130,14 +138,14 @@
                   </el-form-item>
                 </el-row>
 
-                <el-row>
+                <el-row class="zscq">
                   <el-form-item>
                     <el-col :span="8">知识产权</el-col>
                     <el-col :span="16">
                       <el-upload
                         :disabled="stateInfo"
                         list-type="picture-card"
-                        action="/admin/home/common/upload/"
+                        action="/admin/common/upload/"
                         accept="image/jpeg,image/gif,image/png"
                         :show-file-list="false"
                         :on-success="
@@ -164,11 +172,11 @@
                       <el-button type="primary" icon="el-icon-edit" circle @click="() => this.subForm.push({})"></el-button>
                     </el-col>
                   </el-row>
-                  <el-row class="param_list" v-for="(item, index) in subForm" :key="index">
+                  <el-row class="param" v-for="(item, index) in subForm" :key="index">
                     <el-col :span="10"><el-input v-model="item.name" :disabled="stateInfo"></el-input></el-col>
                     <el-col :span="1"></el-col>
                     <el-col :span="10"><el-input v-model="item.memo" :disabled="stateInfo"></el-input> </el-col>
-                    <el-col :span="3">
+                    <el-col :span="2">
                       <el-button type="danger" icon="el-icon-delete" circle @click="cleanLine(index)"></el-button>
                     </el-col>
                   </el-row>
@@ -203,15 +211,15 @@
                     <el-col :span="10">参数名称</el-col>
                     <el-col :span="12">参数内容</el-col>
                     <el-col :span="2">
-                      <el-button type="primary" icon="el-icon-edit" circle @click="() => this.subForm.push({})"></el-button>
+                      <el-button type="primary" icon="el-icon-edit" :disabled="stateInfo" circle @click="() => this.subForm.push({})"></el-button>
                     </el-col>
                   </el-row>
-                  <el-row class="param_list" v-for="(item, index) in subForm" :key="index">
+                  <el-row class="param" v-for="(item, index) in subForm" :key="index">
                     <el-col :span="10"><el-input v-model="item.name" :disabled="stateInfo"></el-input></el-col>
                     <el-col :span="1"></el-col>
                     <el-col :span="10"><el-input v-model="item.memo" :disabled="stateInfo"></el-input> </el-col>
                     <el-col :span="3">
-                      <el-button v-if="stateInfo" type="danger" icon="el-icon-delete" circle @click="cleanLine(index)"></el-button>
+                      <el-button v-if="stateInfo" type="danger" icon="el-icon-delete" :disabled="stateInfo" circle @click="cleanLine(index)"></el-button>
                     </el-col>
                   </el-row>
                 </div>
@@ -234,14 +242,14 @@
             </el-col>
           </el-row>
           <!--图片-->
-          <el-row>
+          <el-row class="proImg">
             <el-alert title="最多可以上传5张图片" type="warning" effect="light" :closable="false" show-icon center> </el-alert>
             <el-col :span="4">图片1</el-col>
             <el-col :span="7">
               <el-upload
                 :disabled="stateInfo"
                 list-type="picture-card"
-                action="/admin/home/common/upload/"
+                action="/admin/common/upload/"
                 accept="image/jpeg,image/gif,image/png"
                 :show-file-list="false"
                 :on-success="
@@ -259,7 +267,7 @@
               <el-upload
                 :disabled="stateInfo"
                 list-type="picture-card"
-                action="/admin/home/common/upload/"
+                action="/admin/common/upload/"
                 accept="image/jpeg,image/gif,image/png"
                 :show-file-list="false"
                 :on-success="
@@ -277,7 +285,7 @@
               <el-upload
                 :disabled="stateInfo"
                 list-type="picture-card"
-                action="/admin/home/common/upload/"
+                action="/admin/common/upload/"
                 accept="image/jpeg,image/gif,image/png"
                 :show-file-list="false"
                 :on-success="
@@ -295,7 +303,7 @@
               <el-upload
                 :disabled="stateInfo"
                 list-type="picture-card"
-                action="/admin/home/common/upload/"
+                action="/admin/common/upload/"
                 accept="image/jpeg,image/gif,image/png"
                 :show-file-list="false"
                 :on-success="
@@ -314,7 +322,7 @@
                 :disabled="stateInfo"
                 list-type="picture-card"
                 :multiple="true"
-                action="/admin/home/common/upload/"
+                action="/admin/common/upload/"
                 accept="image/jpeg,image/gif,image/png"
                 :show-file-list="false"
                 :on-success="
@@ -333,7 +341,9 @@
       <el-col :span="24" style="margin-top:20px;">
         <el-col :span="6">&nbsp;</el-col>
         <el-col :span="5">
-          <el-button type="primary" v-if="!stateInfo" style="width: 150px;font-size: 16px;">添&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;加</el-button>
+          <el-button type="primary" v-if="!stateInfo" style="width: 150px;font-size: 16px;" @click="toOperation()">
+            {{ input.id ? `保&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;存` : `添&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;加` }}
+          </el-button>
           <el-button type="primary" v-if="stateInfo" style="width: 150px;font-size: 16px;" @click="stateInfo = false">
             修&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;改
           </el-button>
@@ -352,7 +362,7 @@ import { levelTwoHeader, searchBar } from '@/components/level_two/index';
 import { mapActions, mapState } from 'vuex';
 import _ from 'lodash';
 export default {
-  name: 'dept',
+  name: 'addOrEdit',
   components: {
     levelTwoHeader,
   },
@@ -363,8 +373,9 @@ export default {
         gxtype: 0,
       },
       imgs: {},
+      files: [],
       title: '',
-      productTypeSelectList: [],
+      proTypeList: [],
       subForm: [],
       stateInfo: true,
       rules: {
@@ -378,13 +389,42 @@ export default {
     };
   },
   computed: {},
-  created() {
+  async created() {
     this.getHeader();
+    let { dataList = [] } = await this.proTypeOperation({ data: { skip: 0, limit: 0 }, type: `proTypeList` });
+    this.$set(this, `proTypeList`, dataList);
   },
   methods: {
-    ...mapActions(['productOperation']),
-    uploadSuccess(res, file) {},
+    ...mapActions(['productOperation', 'proTypeOperation']),
+    toOperation() {
+      this.$refs.form.validate(valid => {
+        if (valid) {
+          this.operation();
+        } else {
+          return false;
+        }
+      });
+    },
+    async operation() {
+      let has_id = Object.keys(this.input).filter(item => item === 'id').length;
+      let type;
+      has_id > 0 ? (type = 'productEdit') : (type = '');
+      let newData = { data: this.input, subForm: this.subForm };
+      let result = await this.productOperation({ data: newData, type: type });
+      this.$router.push({ path: '/product/already' });
+    },
+    uploadSuccess(res, file, index) {
+      if (index !== 0) {
+        this.$set(this.input, `image${index}`, `${res.msg}`);
+        this.$set(this.imgs, `image${index}`, `${this.$domain}${res.msg}`);
+      } else {
+        this.$set(this.input, `zscq`, `${res.msg}`);
+        this.$set(this.imgs, `zscq`, `${this.$domain}${res.msg}`);
+      }
+    },
     fileUpload(res, file) {
+      // console.log(res);
+      // this.$set(this.files, `0`, `${this.$domain}${res.msg}`);
       this.$set(this.input, `dzht`, `${res.msg}`);
     },
     getHeader() {
@@ -401,14 +441,41 @@ export default {
     async toSearch() {
       let { data, dataList = [], rescode } = await this.productOperation({ data: { id: this.$route.query.id || '' }, type: 'productInfo' });
       let { newData, img } = this.$objectListImg(data, this.$domain);
+      newData[`dzht`] = this.$domain + newData[`dzht`];
       this.$set(this, `input`, newData);
+      this.$set(this, `subForm`, dataList);
       this.$set(this, `imgs`, img);
+    },
+    cleanLine(index) {
+      this.subForm.splice(index, 1);
     },
   },
 };
 </script>
 
 <style lang="scss">
+.param {
+  .el-col {
+    margin-left: 1%;
+    margin-bottom: 1%;
+  }
+}
+.zscq {
+  img {
+    height: 150px;
+    width: 150px;
+  }
+}
+.proImg {
+  .el-col {
+    margin-bottom: 1%;
+  }
+  img {
+    height: 150px;
+    width: 150px;
+    margin-bottom: 2%;
+  }
+}
 .insert {
   margin-top: 50px;
   text-align: center;
