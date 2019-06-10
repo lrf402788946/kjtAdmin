@@ -1,8 +1,8 @@
 <template>
   <el-menu class="navbar" mode="horizontal">
-    <div class="user-profile-container" trigger="click">
+    <div class="user-profile-container">
       <div class="user-profile-content">
-        <div class="menu-icons">
+        <!-- <div class="menu-icons">
           <span class="menu-icon"><i class="el-icon-search icon"></i></span>
           <span class="menu-icon"><i class="el-icon-message icon"></i></span>
           <span class="menu-icon">
@@ -10,25 +10,21 @@
               <i class="el-icon-bell icon"></i>
             </el-badge>
           </span>
-        </div>
+        </div> -->
         <el-dropdown>
           <div class="user-profile-body">
             <img class="user-avatar" src="https://img.alicdn.com/tfs/TB1ONhloamWBuNjy1XaXXXCbXXa-200-200.png" />
-            <span class="user-name">淘小宝</span>
+            <span class="user-name" v-if="isLogin">欢迎,{{ (user && user.name) || '' }}</span>
+            <span class="user-name" v-else @click="$router.push({ path: '/login' })">请登录</span>
           </div>
           <el-dropdown-menu class="user-dropdown" slot="dropdown">
-            <router-link to="/">
+            <router-link to="/" v-if="isLogin">
               <el-dropdown-item>
-                我的主页
+                修改密码
               </el-dropdown-item>
             </router-link>
-            <router-link to="/">
-              <el-dropdown-item>
-                个人设置
-              </el-dropdown-item>
-            </router-link>
-            <el-dropdown-item>
-              <span @click="logout" style="display:block;">退出</span>
+            <el-dropdown-item v-if="isLogin">
+              <span @click="toLogout()" style="display:block;">退出</span>
             </el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
@@ -38,11 +34,30 @@
 </template>
 
 <script>
+import { mapActions, mapState } from 'vuex';
+import _ from 'lodash';
 export default {
   name: 'NavBar',
+  computed: {
+    ...mapState({
+      user: state => state.publics.user,
+    }),
+  },
+  data() {
+    return {
+      isLogin: false,
+    };
+  },
+  async created() {
+    await this.login();
+    let token = _.get(this.user, `token`, undefined);
+    token ? (this.isLogin = true) : '';
+  },
   methods: {
-    logout() {
-      console.log('Logout');
+    ...mapActions(['login', 'logout']),
+    async toLogout() {
+      await this.logout();
+      this.$router.push({ path: '/login' });
     },
   },
 };

@@ -90,4 +90,15 @@ const enterpriseType = [
   },
 ];
 
-export { dept, role, user, user_role, check, enterpriseType };
+const productType = [
+  {
+    prop: 'code',
+    label: '产品类别代码',
+  },
+  {
+    prop: 'name',
+    label: '产品类别名称',
+  },
+];
+
+export { dept, role, user, user_role, check, enterpriseType, productType };

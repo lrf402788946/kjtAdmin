@@ -73,7 +73,7 @@
         </el-row>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button type="primary" v-if="!updateEdit" @click="dialog = false">保存</el-button>
+        <el-button type="primary" v-if="!updateEdit" @click="toOperation()">保存</el-button>
         <el-button type="primary" v-else @click="updateEdit = false">修改</el-button>
         <el-button @click="closeAlert()">取 消</el-button>
       </span>
@@ -142,13 +142,26 @@ export default {
       }
       let skip = (this.currentPage - 1) * this.searchInfo.limit;
       let newObject = { ...this.searchInfo, skip: skip };
-      let { totalRow, dataList, rescode } = await this.deptOperation({ data: newObject, type: 'deptList' });
-      console.log(totalRow);
-      console.log(dataList);
-      console.log(rescode);
-      // let { returnDataList, totalRow } = await this.getMenuList(this.searchInfo);
-      // this.$set(this, `list`, returnDataList);
-      // this.$set(this, `totalRow`, totalRow);
+      let { totalRow, dataList = [], rescode } = await this.deptOperation({ data: newObject, type: 'deptList' });
+      this.$set(this, `list`, dataList);
+      this.$set(this, `totalRow`, totalRow);
+    },
+    toOperation() {
+      this.$refs.form.validate(valid => {
+        if (valid) {
+          this.operation();
+        } else {
+          return false;
+        }
+      });
+    },
+    async operation() {
+      let has_id = Object.keys(this.form).filter(item => item === 'id').length;
+      let type;
+      has_id > 0 ? (type = 'deptEdit') : (type = 'deptSave');
+      let result = await this.deptOperation({ data: this.form, type: type });
+      this.toSearch();
+      this.closeAlert();
     },
     async openAlert(type, item) {
       this.$set(this, `dialogTitle`, `部门${type === 'delete' ? '删除' : type === 'add' ? '添加' : '修改'}`);
@@ -165,6 +178,8 @@ export default {
           .then(async () => {
             //确认删除
             console.log(`delete${this.operationId}`);
+            await this.deptOperation({ data: { id: this.operationId }, type: 'deptDelete' });
+            this.toSearch();
           })
           .catch(() => {
             //不删除

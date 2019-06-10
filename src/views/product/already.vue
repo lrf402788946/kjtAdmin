@@ -98,7 +98,7 @@
         </el-row>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button type="primary" v-if="!updateEdit" @click="dialog = false">保存</el-button>
+        <el-button type="primary" v-if="!updateEdit" @click="toOperation()">保存</el-button>
         <el-button type="primary" v-else @click="updateEdit = false">修改</el-button>
         <el-button @click="closeAlert()">取 消</el-button>
       </span>

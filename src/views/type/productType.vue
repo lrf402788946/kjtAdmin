@@ -1,8 +1,8 @@
 <template lang="html">
-  <div id="enterpriseType">
+  <div id="productType">
     <el-row style="margin: 2%;background: #fff;text-align:center;">
       <el-col :span="24">
-        <levelTwoHeader title="企业类别管理"></levelTwoHeader>
+        <levelTwoHeader title="产品类别管理"></levelTwoHeader>
         <el-row>
           <el-col :span="4">&nbsp;</el-col>
           <el-col :span="14">&nbsp;</el-col>
@@ -56,13 +56,13 @@
           <!--添加和编辑共用一个dialog,根据updateEdit来改变是否可以编辑达到edit情况的效果.列表显示采用左右两侧显示方式-->
           <el-col :span="12" ref="left">
             <el-form-item prop="code">
-              <el-col :span="8">企业类别编号</el-col>
+              <el-col :span="8">产品类别编号</el-col>
               <el-col :span="14"><el-input v-model="form.code" :disabled="updateEdit"></el-input></el-col>
             </el-form-item>
           </el-col>
           <el-col :span="12" ref="right">
             <el-form-item prop="name">
-              <el-col :span="8">企业类别名称</el-col>
+              <el-col :span="8">产品类别名称</el-col>
               <el-col :span="14"><el-input v-model="form.name" :disabled="updateEdit"></el-input></el-col>
             </el-form-item>
           </el-col>
@@ -83,7 +83,7 @@ import { mapActions, mapState } from 'vuex';
 import * as tableConfig from '@/config/tableConfig';
 import _ from 'lodash';
 export default {
-  name: 'enterpriseType',
+  name: 'productType',
   components: {
     levelTwoHeader,
     searchBar,
@@ -104,14 +104,14 @@ export default {
       form: {},
       operationId: '',
       rules: {
-        code: [{ required: true, message: '请输入企业类别编号', trigger: 'blur' }],
-        name: [{ required: true, message: '请输入企业类别名称', trigger: 'blur' }],
+        code: [{ required: true, message: '请输入产品类别编号', trigger: 'blur' }],
+        name: [{ required: true, message: '请输入产品类别名称', trigger: 'blur' }],
       },
     };
   },
   computed: {},
   created() {
-    this.searchTableSetting(`enterpriseType`);
+    this.searchTableSetting(`productType`);
   },
   methods: {
     searchTableSetting(type) {
@@ -134,7 +134,7 @@ export default {
       // this.$set(this, `totalRow`, totalRow);
     },
     async openAlert(type, item) {
-      this.$set(this, `dialogTitle`, `企业类别${type === 'delete' ? '删除' : type === 'add' ? '添加' : '修改'}`);
+      this.$set(this, `dialogTitle`, `产品类别${type === 'delete' ? '删除' : type === 'add' ? '添加' : '修改'}`);
       if (type === 'edit') {
         this.$set(this, `form`, JSON.parse(JSON.stringify(item)));
       } else if (type === 'add') {

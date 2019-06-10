@@ -5,6 +5,7 @@ import store from './store/index';
 import '@/plugins/element';
 import '@/plugins/axios';
 import '@/plugins/meta';
+import '@/plugins/filters';
 import '@/plugins/methods_util';
 import 'normalize.css/normalize.css';
 import '@/styles/index.scss';

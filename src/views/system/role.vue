@@ -69,7 +69,7 @@
         </el-row>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button type="primary" v-if="!updateEdit" @click="dialog = false">保存</el-button>
+        <el-button type="primary" v-if="!updateEdit" @click="toOperation()">保存</el-button>
         <el-button type="primary" v-else @click="updateEdit = false">修改</el-button>
         <el-button @click="closeAlert()">取 消</el-button>
       </span>
@@ -116,8 +116,10 @@ export default {
   computed: {},
   created() {
     this.searchTableSetting(`role`);
+    this.toSearch();
   },
   methods: {
+    ...mapActions(['roleOperation']),
     searchTableSetting(type) {
       if (type !== '') {
         let tableprops = _.get(tableConfig, type, []);
@@ -133,9 +135,27 @@ export default {
         this.currentPage = item ? item : 1;
       }
       let skip = (this.currentPage - 1) * this.searchInfo.limit;
-      // let { returnDataList, totalRow } = await this.getMenuList(this.searchInfo);
-      // this.$set(this, `list`, returnDataList);
-      // this.$set(this, `totalRow`, totalRow);
+      let newObject = { ...this.searchInfo, skip: skip };
+      let { totalRow, dataList = [], rescode } = await this.roleOperation({ data: newObject, type: 'roleList' });
+      this.$set(this, `list`, dataList);
+      this.$set(this, `totalRow`, totalRow);
+    },
+    toOperation() {
+      this.$refs.form.validate(valid => {
+        if (valid) {
+          this.operation();
+        } else {
+          return false;
+        }
+      });
+    },
+    async operation() {
+      let has_id = Object.keys(this.form).filter(item => item === 'id').length;
+      let type;
+      has_id > 0 ? (type = 'roleEdit') : (type = 'roleSave');
+      let result = await this.roleOperation({ data: this.form, type: type });
+      this.toSearch();
+      this.closeAlert();
     },
     async openAlert(type, item) {
       this.$set(this, `dialogTitle`, `权限${type === 'delete' ? '删除' : type === 'add' ? '添加' : '修改'}`);
@@ -152,6 +172,9 @@ export default {
           .then(async () => {
             //确认删除
             console.log(`delete${this.operationId}`);
+            await this.roleOperation({ data: { id: this.operationId }, type: 'roleDelete' });
+            this.closeAlert();
+            this.toSearch();
           })
           .catch(() => {
             //不删除

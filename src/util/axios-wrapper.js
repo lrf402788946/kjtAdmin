@@ -6,6 +6,8 @@ import Axios from 'axios';
 import { Util, Error } from 'naf-core';
 // import { Indicator } from 'mint-ui'; 我没引
 import util from './user-util';
+import { Message } from 'element-ui';
+import * as methods from './methods-util';
 
 const { trimData, isNullOrUndefined } = Util;
 const { ErrorCode } = Error;
@@ -106,6 +108,7 @@ export default class AxiosWrapper {
           res = res.data;
         }
       }
+      res = methods.checkRes(res, uri);
       return res;
     } catch (err) {
       let errmsg = '接口请求失败，请稍后重试';
@@ -114,6 +117,7 @@ export default class AxiosWrapper {
         if (status === 401) errmsg = '用户认证失败，请重新登录';
         if (status === 403) errmsg = '当前用户不允许执行该操作';
       }
+      Message.error('请求接口失败');
       console.error(
         `[AxiosWrapper] 接口请求失败: ${err.config && err.config.url} - 
         ${err.message}`

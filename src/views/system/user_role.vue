@@ -44,18 +44,17 @@
       <el-transfer
         id="transfer"
         style="text-align: left; display: inline-block;padding-left:8%;"
-        v-model="form"
+        v-model="subForm"
         :data="roleList"
         :titles="titles"
         :button-texts="['移除', '添加']"
       >
         <!-- <template slot-scope="scope">
-          <span>{{ scope.option.label }}</span>
+          <span>{{ scope }}</span>
         </template> -->
       </el-transfer>
       <span slot="footer" class="dialog-footer">
-        <el-button type="primary" v-if="!updateEdit" @click="dialog = false">保存</el-button>
-        <el-button type="primary" v-else @click="updateEdit = false">修改</el-button>
+        <el-button type="primary" @click="toOperation()">保存</el-button>
         <el-button @click="closeAlert()">取 消</el-button>
       </span>
     </el-dialog>
@@ -79,7 +78,7 @@ export default {
         { id: 2, user_name: 'name2', role_code: 'value21' },
         { id: 3, user_name: 'name3', role_code: 'value31' },
       ],
-      roleList: [{ key: 1, label: '权限1111' }, { key: 2, label: '权限22' }, { key: 3, label: '权限3' }],
+      roleList: [],
       titles: ['权限列表', '用户权限'],
       tableProps: [], //输出字段存放位置
       currentPage: 1,
@@ -87,19 +86,28 @@ export default {
       searchInfo: {
         limit: 15,
       },
+      form: {},
+      subForm: [],
       dialog: false,
       dialogTitle: '',
-      updateEdit: true,
       searchProps: [],
-      form: [],
+
       operationId: '',
     };
   },
   computed: {},
-  created() {
+  async created() {
     this.searchTableSetting(`user_role`);
+    let { dataList } = await this.roleOperation({ data: { skip: `0`, limit: `10000` }, type: 'roleList' });
+    dataList = dataList.map(item => {
+      let newObject = { label: item.role_name, key: item.id };
+      return newObject;
+    });
+    this.$set(this, `roleList`, dataList);
+    this.toSearch();
   },
   methods: {
+    ...mapActions(['userOperation', 'roleOperation', 'userRoleOperation']),
     searchTableSetting(type) {
       if (type !== '') {
         let tableprops = _.get(tableConfig, type, []);
@@ -115,18 +123,34 @@ export default {
         this.currentPage = item ? item : 1;
       }
       let skip = (this.currentPage - 1) * this.searchInfo.limit;
-      // let { returnDataList, totalRow } = await this.getMenuList(this.searchInfo);
-      // this.$set(this, `list`, returnDataList);
-      // this.$set(this, `totalRow`, totalRow);
+      let newObject = { ...this.searchInfo, skip: skip };
+      let { totalRow, data, dataList = [], rescode } = await this.userOperation({ data: newObject, type: 'userList' });
+      this.$set(this, `list`, dataList);
+      this.$set(this, 'form', data);
+      this.$set(this, `totalRow`, totalRow);
     },
-    async openAlert(type, item) {
+    toOperation() {
+      this.operation();
+    },
+    async operation() {
+      let result = await this.userOperation({ data: { id: this.form.id, role_id: this.subForm }, type: 'userRoleEdit' });
+      this.toSearch();
+      this.closeAlert();
+    },
+    async openAlert(item) {
       this.$set(this, `dialogTitle`, `用户权限管理`);
+      let { data, dataList } = await this.userRoleOperation({ data: { id: item }, type: 'userRoleSel' });
+      this.$set(this, `form`, data);
+      let roleList = [];
+      dataList = dataList.map(item => {
+        roleList.push(item.id);
+      });
+      this.$set(this, `subForm`, roleList);
       this.dialog = true;
     },
     closeAlert() {
       this.operationId = '';
       this.form = {};
-      this.updateEdit = true;
       this.dialog = false;
     },
   },

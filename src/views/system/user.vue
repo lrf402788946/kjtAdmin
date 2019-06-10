@@ -22,7 +22,7 @@
                   所属部门
                 </template>
                 <template slot-scope="scope">
-                  {{ scope.row.dept_id }}
+                  {{ { data: deptList, searchItem: `id`, value: scope.row.dept_id, label: `dept_name` } | getName }}
                 </template>
               </el-table-column>
               <!--按钮选加-->
@@ -77,7 +77,7 @@
             </el-form-item>
           </el-col>
           <el-col :span="12" ref="right">
-            <el-form-item prop="password">
+            <el-form-item prop="password" v-if="!form.id">
               <el-col :span="6">密码</el-col>
               <el-col :span="15"><el-input v-model="form.password" :disabled="updateEdit"></el-input></el-col>
             </el-form-item>
@@ -87,13 +87,17 @@
             </el-form-item>
             <el-form-item prop="dept_id">
               <el-col :span="6">所属部门</el-col>
-              <el-col :span="15"><el-input v-model="form.dept_id" :disabled="updateEdit"></el-input></el-col>
+              <el-col :span="15">
+                <el-select v-model="form.dept_id" :disabled="updateEdit" placeholder="请选择所属部门">
+                  <el-option v-for="(item, index) in deptList" :key="index" :label="item.dept_name" :value="item.id"></el-option>
+                </el-select>
+              </el-col>
             </el-form-item>
           </el-col>
         </el-row>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button type="primary" v-if="!updateEdit" @click="dialog = false">保存</el-button>
+        <el-button type="primary" v-if="!updateEdit" @click="toOperation()">保存</el-button>
         <el-button type="primary" v-else @click="updateEdit = false">修改</el-button>
         <el-button @click="closeAlert()">取 消</el-button>
       </span>
@@ -125,6 +129,7 @@ export default {
       searchInfo: {
         limit: 15,
       },
+      deptList: [],
       dialog: false,
       dialogTitle: '',
       updateEdit: true,
@@ -142,10 +147,18 @@ export default {
     };
   },
   computed: {},
-  created() {
+  async created() {
     this.searchTableSetting(`user`);
+    this.toSearch();
+    let { dataList } = await this.deptOperation({ data: { skip: `0`, limit: `10000` }, type: 'deptList' });
+    // dataList.map(item => {
+    //   item.id = `${item.id}`;
+    //   return item.id;
+    // });
+    this.$set(this, `deptList`, dataList);
   },
   methods: {
+    ...mapActions(['userOperation', 'deptOperation']),
     searchTableSetting(type) {
       if (type !== '') {
         let tableprops = _.get(tableConfig, type, []);
@@ -161,9 +174,27 @@ export default {
         this.currentPage = item ? item : 1;
       }
       let skip = (this.currentPage - 1) * this.searchInfo.limit;
-      // let { returnDataList, totalRow } = await this.getMenuList(this.searchInfo);
-      // this.$set(this, `list`, returnDataList);
-      // this.$set(this, `totalRow`, totalRow);
+      let newObject = { ...this.searchInfo, skip: skip };
+      let { totalRow, dataList = [], rescode } = await this.userOperation({ data: newObject, type: 'userList' });
+      this.$set(this, `list`, dataList);
+      this.$set(this, `totalRow`, totalRow);
+    },
+    toOperation() {
+      this.$refs.form.validate(valid => {
+        if (valid) {
+          this.operation();
+        } else {
+          return false;
+        }
+      });
+    },
+    async operation() {
+      let has_id = Object.keys(this.form).filter(item => item === 'id').length;
+      let type;
+      has_id > 0 ? (type = 'userEdit') : (type = 'userSave');
+      let result = await this.userOperation({ data: this.form, type: type });
+      this.toSearch();
+      this.closeAlert();
     },
     async openAlert(type, item) {
       this.$set(this, `dialogTitle`, `用户${type === 'delete' ? '删除' : type === 'add' ? '添加' : '修改'}`);
@@ -180,6 +211,9 @@ export default {
           .then(async () => {
             //确认删除
             console.log(`delete${this.operationId}`);
+            await this.userOperation({ data: { id: this.operationId }, type: 'userDelete' });
+            this.closeAlert();
+            this.toSearch();
           })
           .catch(() => {
             //不删除

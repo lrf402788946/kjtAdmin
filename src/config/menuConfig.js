@@ -75,7 +75,7 @@ const asideMenuConfig = [
     icon: 'el-icon-tickets',
     children: [
       {
-        path: '/success',
+        path: '/productType',
         name: '产品类别管理',
       },
       {

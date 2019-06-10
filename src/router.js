@@ -7,6 +7,11 @@ Vue.use(Router);
 const router = new Router({
   routes: [
     {
+      path: '/login',
+      name: 'login',
+      component: () => import('./views/login.vue'),
+    },
+    {
       path: '/',
       name: 'index',
       component: () => import('./views/index.vue'),
@@ -52,11 +57,6 @@ const router = new Router({
           component: () => import('./views/enterprise/add.vue'),
         },
         {
-          path: '/type/enterpriseType',
-          name: 'enterpriseType',
-          component: () => import('./views/type/enterpriseType.vue'),
-        },
-        {
           path: '/product/already',
           name: 'already',
           component: () => import('./views/product/already.vue'),
@@ -65,6 +65,16 @@ const router = new Router({
           path: '/product/addOrEdit',
           name: 'addOrEdit',
           component: () => import('./views/product/addOrEdit.vue'),
+        },
+        {
+          path: '/type/enterpriseType',
+          name: 'enterpriseType',
+          component: () => import('./views/type/enterpriseType.vue'),
+        },
+        {
+          path: '/type/productType',
+          name: 'productType',
+          component: () => import('./views/type/productType.vue'),
         },
       ],
     },

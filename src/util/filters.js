@@ -18,7 +18,7 @@ const filters = {
         //4循环出数据集中的项
         for (const item of data) {
           //5取出数据源中的searchItem和value比较
-          if (_.get(item, `${searchItem}`) === value) {
+          if (`${_.get(item, `${searchItem}`)}` === `${value}`) {
             //6若完全相等,则将数据源中此项名为label属性的值取出,返回,强制结束循环
             returnText = _.get(item, `${label}`);
             break;
