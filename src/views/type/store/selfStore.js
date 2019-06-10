@@ -6,8 +6,13 @@ Vue.use(Vuex);
 
 const api = {
   proTypeList: '/product/product_type',
-
+  proTypeSave: '/producttype/product_type_save',
+  proTypeEdit: '/producttype/product_type_edit',
+  proTypeDelete: '/producttype/product_type_delete',
   entTypeList: '/enterprisetype/enterprise_type_list',
+  entTypeSave: '/enterprisetype/enterprise_type_save',
+  entTypeEdit: '/enterprisetype/enterprise_type_edit',
+  entTypeDelete: '/enterprisetype/enterprise_type_delete',
 };
 export const state = () => ({});
 

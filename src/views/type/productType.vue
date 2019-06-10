@@ -112,7 +112,7 @@ export default {
   computed: {},
   created() {
     this.searchTableSetting(`productType`);
-    // this.toSearch();
+    this.toSearch();
   },
   methods: {
     ...mapActions(['proTypeOperation']),
