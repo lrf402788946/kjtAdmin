@@ -96,7 +96,9 @@ router.beforeEach((to, from, next) => {
   } else {
     next();
   }
-
+  /**
+   * 检测是否登录
+   */
   const is_login = sessionStorage.getItem('user');
   if (is_login) {
     next();
