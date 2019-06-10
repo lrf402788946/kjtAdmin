@@ -143,6 +143,7 @@ export default {
       let skip = (this.currentPage - 1) * this.searchInfo.limit;
       let newObject = { ...this.searchInfo, skip: skip };
       let { totalRow, dataList = [], rescode } = await this.deptOperation({ data: newObject, type: 'deptList' });
+      console.log(dataList);
       this.$set(this, `list`, dataList);
       this.$set(this, `totalRow`, totalRow);
     },

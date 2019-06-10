@@ -45,7 +45,6 @@ export const actions = {
    */
   async userOperation({ commit }, { data, type }) {
     let result = await this.$axios.$post(_.get(api, type), { data: data });
-    console.log(result);
     return result;
   },
   /**
@@ -57,7 +56,6 @@ export const actions = {
   },
   async userRoleOperation({ commit }, { data, type }) {
     let result = await this.$axios.$post(_.get(api, type), { data: data });
-    console.log(result);
     return result;
   },
 };

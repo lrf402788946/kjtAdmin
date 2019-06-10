@@ -97,18 +97,18 @@ router.beforeEach((to, from, next) => {
     next();
   }
 
-  // const is_login = sessionStorage.getItem('userInfo');
-  // if (is_login) {
-  //   next();
-  // } else {
-  //   if (to.path.includes('login') || to.path.includes('toLogin')) {
-  //     next();
-  //   } else if (to.path.includes('test')) {
-  //     next();
-  //   } else {
-  //     next({ path: '/toLogin' });
-  //   }
-  // }
+  const is_login = sessionStorage.getItem('user');
+  if (is_login) {
+    next();
+  } else {
+    if (to.path.includes('login') || to.path.includes('toLogin')) {
+      next();
+    } else if (to.path.includes('test')) {
+      next();
+    } else {
+      next({ path: '/login' });
+    }
+  }
 });
 
 const searchRouter = (routes, next) => {

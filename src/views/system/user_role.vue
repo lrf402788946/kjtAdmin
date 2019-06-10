@@ -136,6 +136,7 @@ export default {
       let result = await this.userOperation({ data: { id: this.form.id, role_id: this.subForm }, type: 'userRoleEdit' });
       this.toSearch();
       this.closeAlert();
+      if (result.result) this.$message.success('分配成功');
     },
     async openAlert(item) {
       this.$set(this, `dialogTitle`, `用户权限管理`);

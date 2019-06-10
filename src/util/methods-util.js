@@ -37,19 +37,20 @@ const checkRes = (result, uri) => {
     console.log(_.get(result, 'dataList', []));
   }
   if (result.rescode === 0 || result.rescode === '0') {
+    console.log('in function:');
     if (uri.includes('login')) {
       Message.success(`登录成功`);
       return { result: true, user: result.user, userRoleList: result.userRoleList };
     } else if (filterUrl(uri)) {
       Message.success(result.msg);
-      return {
-        result: true,
-        msg: result.msg,
-        data: _.get(result, 'data', {}),
-        dataList: _.get(result, 'dataList', []),
-        totalRow: _.get(result, `totalRow`, 0),
-      };
     }
+    return {
+      result: true,
+      msg: result.msg,
+      data: _.get(result, 'data', {}),
+      dataList: _.get(result, 'dataList', []),
+      totalRow: _.get(result, `totalRow`, 0),
+    };
   } else {
     Message.error(result.msg);
     return { result: false };
