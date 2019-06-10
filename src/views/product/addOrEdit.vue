@@ -363,6 +363,7 @@ export default {
         gxtype: 0,
       },
       imgs: {},
+      title: '',
       productTypeSelectList: [],
       subForm: [],
       stateInfo: true,
@@ -377,8 +378,11 @@ export default {
     };
   },
   computed: {},
-  created() {},
+  created() {
+    this.getHeader();
+  },
   methods: {
+    ...mapActions(['productOperation']),
     uploadSuccess(res, file) {},
     fileUpload(res, file) {
       this.$set(this.input, `dzht`, `${res.msg}`);
@@ -387,11 +391,18 @@ export default {
       let id = this.$route.query.id || '';
       if (id === '') {
         this.stateInfo = false;
-        return `添加产品`;
+        this.title = `添加产品`;
       } else {
         //查询,再返回标题
-        return `修改产品`;
+        this.toSearch();
+        this.title = `修改产品`;
       }
+    },
+    async toSearch() {
+      let { data, dataList = [], rescode } = await this.productOperation({ data: { id: this.$route.query.id || '' }, type: 'productInfo' });
+      let { newData, img } = this.$objectListImg(data, this.$domain);
+      this.$set(this, `input`, newData);
+      this.$set(this, `imgs`, img);
     },
   },
 };

@@ -2,7 +2,7 @@
   <div id="dept">
     <el-row style="margin: 2%;background: #fff;text-align:center;">
       <el-col :span="24">
-        <levelTwoHeader title="添加企业"></levelTwoHeader>
+        <levelTwoHeader :title="title"></levelTwoHeader>
         <el-row>
           <el-col :span="4">&nbsp;</el-col>
           <el-col :span="14">&nbsp;</el-col>
@@ -18,12 +18,12 @@
               <el-col :span="18" style="text-align:center;">
                 <el-upload
                   list-type="picture-card"
-                  action="/admin/home/common/upload/"
+                  action="/admin/common/upload/"
                   accept="image/jpeg,image/gif,image/png"
                   :show-file-list="false"
                   :on-success="
                     (res, file) => {
-                      return uploadSuccess(res, file, 0);
+                      return uploadSuccess(res, file, 'logo');
                     }
                   "
                 >
@@ -35,12 +35,12 @@
               <el-col :span="18">
                 <el-upload
                   list-type="picture-card"
-                  action="/admin/home/common/upload/"
+                  action="/admin/common/upload/"
                   accept="image/jpeg,image/gif,image/png"
                   :show-file-list="false"
                   :on-success="
                     (res, file) => {
-                      return uploadSuccess(res, file, 0);
+                      return uploadSuccess(res, file, 'file_path');
                     }
                   "
                 >
@@ -52,12 +52,12 @@
               <el-col :span="18">
                 <el-upload
                   list-type="picture-card"
-                  action="/admin/home/common/upload/"
+                  action="/admin/common/upload/"
                   accept="image/jpeg,image/gif,image/png"
                   :show-file-list="false"
                   :on-success="
                     (res, file) => {
-                      return uploadSuccess(res, file, 0);
+                      return uploadSuccess(res, file, 'license');
                     }
                   "
                 >
@@ -86,20 +86,29 @@
                 <el-col :span="8">企业类别</el-col>
                 <el-col :span="15">
                   <el-select v-model="form.code" placeholder="请选择企业类别">
-                    <el-option :label="`产品`" :value="0"></el-option>
-                    <el-option :label="`技术`" :value="1"></el-option>
-                    <el-option :label="`服务`" :value="2"></el-option>
+                    <el-option v-for="(item, index) in entTypeList" :key="index" :label="item.name" :value="item.code"></el-option>
                   </el-select>
                 </el-col>
                 <el-col :span="1"> &nbsp;</el-col>
               </el-form-item>
               <el-form-item prop="dtype">
-                <el-col :span="8">企业类型</el-col>
+                <el-col :span="8">大类别</el-col>
                 <el-col :span="15">
-                  <el-select v-model="form.dtype" placeholder="请选择企业类型">
-                    <el-option :label="`产品`" :value="0"></el-option>
-                    <el-option :label="`技术`" :value="1"></el-option>
-                    <el-option :label="`服务`" :value="2"></el-option>
+                  <el-select v-model="form.dtype" placeholder="请选择大类别">
+                    <el-option :label="`产品`" :value="'0'"></el-option>
+                    <el-option :label="`技术`" :value="'1'"></el-option>
+                    <el-option :label="`服务`" :value="'2'"></el-option>
+                  </el-select>
+                </el-col>
+                <el-col :span="1"> &nbsp;</el-col>
+              </el-form-item>
+              <el-form-item prop="xtype">
+                <el-col :span="8">小类别</el-col>
+                <el-col :span="15">
+                  <el-select v-model="form.xtype" placeholder="请选择小类别">
+                    <el-option :label="`产品`" :value="'0'"></el-option>
+                    <el-option :label="`技术`" :value="'1'"></el-option>
+                    <el-option :label="`服务`" :value="'2'"></el-option>
                   </el-select>
                 </el-col>
                 <el-col :span="1"> &nbsp;</el-col>
@@ -123,10 +132,12 @@
       <el-col :span="24" style="margin-top:20px;">
         <el-col :span="6">&nbsp;</el-col>
         <el-col :span="5">
-          <el-button type="primary" style="width: 150px;font-size: 16px;">添&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;加</el-button>
+          <el-button type="primary" style="width: 150px;font-size: 16px;" @click="toOperation()">
+            {{ form.id ? `修&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;改` : `添&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;加` }}
+          </el-button>
         </el-col>
         <el-col :span="5">
-          <el-button type="info" style="width: 150px;font-size: 16px;">保&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;存</el-button>
+          <el-button type="info" style="width: 150px;font-size: 16px;" @click="toReset()">重&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;置</el-button>
         </el-col>
         <el-col :span="8">&nbsp;</el-col>
       </el-col>
@@ -147,6 +158,8 @@ export default {
     return {
       form: {},
       imgs: {},
+      title: '',
+      entTypeList: {},
       rules: {
         name: [{ required: true, message: '请填写企业名称', trigger: 'blur' }],
         contact: [{ required: true, message: '请填写联系方式', trigger: 'blur' }],
@@ -158,9 +171,54 @@ export default {
     };
   },
   computed: {},
-  created() {},
+  async created() {
+    this.getHeader();
+    let { dataList } = await this.entTypeOperation({ data: { skip: 0, limit: 10000 }, type: 'entTypeList' });
+    this.$set(this, `entTypeList`, dataList);
+  },
   methods: {
-    uploadSuccess(res, file) {},
+    ...mapActions(['enterpriseOperation', 'entTypeOperation']),
+    getHeader() {
+      let id = this.$route.query.id || '';
+      if (id === '') {
+        this.title = `添加企业`;
+      } else {
+        //查询,再返回标题
+        this.toSearch();
+        this.title = `修改企业`;
+      }
+    },
+    async toSearch() {
+      let { data, dataList = [], rescode } = await this.enterpriseOperation({ data: { id: this.$route.query.id || '' }, type: 'enterpriseInfo' });
+      let { newData, img } = this.$objectListImg(data, this.$domain);
+      this.$set(this, `form`, newData);
+      this.$set(this, `imgs`, img);
+    },
+    uploadSuccess(res, file, type) {
+      this.$set(this.form, `${type}`, res.msg);
+      this.$set(this.imgs, `${type}`, `${this.$domain}${res.msg}`);
+    },
+    toOperation() {
+      this.$refs.form.validate(valid => {
+        if (valid) {
+          this.operation();
+        } else {
+          return false;
+        }
+      });
+    },
+    async operation() {
+      let has_id = Object.keys(this.form).filter(item => item === 'id').length;
+      let type;
+      has_id > 0 ? (type = 'enterpriseEdit') : (type = 'enterpriseSave');
+      let result = await this.enterpriseOperation({ data: this.form, type: type });
+      this.$router.push({ path: '/enterprise/check' });
+    },
+    toReset() {
+      this.$refs.form.resetFields();
+      this.form = {};
+      this.imgs = {};
+    },
   },
 };
 </script>
@@ -175,7 +233,7 @@ export default {
   top: -45%;
   left: 55%;
 }
-.el-row {
+#form {
   #left {
     margin-left: 1%;
     div {
@@ -186,6 +244,12 @@ export default {
     div {
       margin-bottom: 2%;
     }
+  }
+}
+.el-upload--picture-card {
+  img {
+    height: 150px;
+    width: 150px;
   }
 }
 </style>

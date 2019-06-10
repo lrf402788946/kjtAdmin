@@ -26,7 +26,7 @@ const Plugin = {
           }
         }
       }
-      return { data: item, img };
+      return { newData: item, img };
     };
   },
 };

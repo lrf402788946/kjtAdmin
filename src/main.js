@@ -7,6 +7,7 @@ import '@/plugins/axios';
 import '@/plugins/meta';
 import '@/plugins/filters';
 import '@/plugins/methods_util';
+import '@/util/var';
 import 'normalize.css/normalize.css';
 import '@/styles/index.scss';
 import BootstrapVue from 'bootstrap-vue';

@@ -22,7 +22,7 @@
                   审核状态
                 </template>
                 <template slot-scope="scope">
-                  {{ scope.row.status === 0 ? '未审核' : scope.row.status === 1 ? '审核通过' : '已拒绝' }}
+                  {{ scope.row.state === '0' ? '未审核' : scope.row.state === '1' ? '审核通过' : '已拒绝' }}
                 </template>
               </el-table-column>
               <!--按钮选加-->
@@ -31,8 +31,15 @@
                   操作
                 </template>
                 <template slot-scope="scope">
-                  <el-button size="mini" v-if="scope.row.status === 0" @click="openAlert('edit', scope.row)">审核信息</el-button>
-                  <el-button size="mini" v-else @click="openAlert('edit', scope.row)">查看</el-button>
+                  <el-row>
+                    <el-button size="mini" v-if="scope.row.state === '0'" @click="openAlert('edit', scope.row)">审核</el-button>
+                    <el-button size="mini" v-else @click="openAlert('edit', scope.row)">查看</el-button>
+                  </el-row>
+                  <el-row v-if="scope.row.state === '0'">
+                    <el-button size="mini" @click="$router.push({ path: '/enterprise/add', query: { id: scope.row.id } })">
+                      修改
+                    </el-button>
+                  </el-row>
                   <el-button size="mini" type="danger" @click="openAlert('delete', scope.row.id)">删除</el-button>
                 </template>
               </el-table-column>
@@ -41,19 +48,20 @@
         </el-row>
         <!--pages-->
         <el-row>
-          <el-col :span="18">&nbsp;</el-col>
-          <el-col :span="6" style="margin-top:2%">
+          <el-col :span="14">&nbsp;</el-col>
+          <el-col :span="8" style="margin-top:2%">
             <b-pagination
               v-if="list.length > 0"
               v-model="currentPage"
               :total-rows="totalRow"
-              :limit="searchInfo.limit"
+              :limit="5"
               @change="toSearch"
               first-text="首页"
               prev-text="<"
               next-text=">"
               last-text="末页"
-            ></b-pagination>
+            >
+            </b-pagination>
           </el-col>
         </el-row>
       </el-col>
@@ -62,27 +70,32 @@
     <el-dialog :title="dialogTitle" center :visible.sync="dialog" width="80%" :close-on-click-modal="false" :before-close="closeAlert">
       <el-row style="text-align:center;">
         <el-col :span="10" id="left">
-          <el-col :span="24"> <img style="width:150px;height:150px;" /> </el-col>
+          <el-col :span="24"> <img :src="form.logo" style="width:150px;height:150px;" /> </el-col>
           <el-col :span="4"> 证件照片</el-col>
-          <el-col :span="18"> <img style="width:200px;height:200px;" /> </el-col>
+          <el-col :span="18"> <img :src="form.file_path" style="width:200px;height:200px;" /> </el-col>
           <el-col :span="4"> 执照</el-col>
-          <el-col :span="18"> <img style="width:200px;height:200px;" /> </el-col>
+          <el-col :span="18"> <img :src="form.license" style="width:200px;height:200px;" /> </el-col>
         </el-col>
         <el-col :span="7" id="mid">
           <el-col :span="10">企业名称</el-col>
           <el-col :span="14">{{ form.name }}</el-col>
+          <el-col :span="10">大类别</el-col>
+          <el-col :span="14">{{ form.dtype ? form.dtype : `&nbsp;` }}</el-col>
           <el-col :span="10">联系方式</el-col>
           <el-col :span="14">{{ form.contact ? form.contact : `&nbsp;` }}</el-col>
-          <el-col :span="10">地址</el-col>
-          <el-col :span="14">{{ form.addr ? form.addr : `&nbsp;` }}</el-col>
         </el-col>
         <el-col :span="7" id="right">
           <el-col :span="10">企业类别</el-col>
-          <el-col :span="14"> {{ form.code ? form.code : `&nbsp;` }}</el-col>
-          <el-col :span="10">企业类型</el-col>
-          <el-col :span="14"> {{ form.dtype ? form.dtype : `&nbsp;` }}</el-col>
+          <el-col :span="14"> {{ { data: entTypeList, searchItem: `code`, value: form.code, label: `name` } | getName }}</el-col>
+          <el-col :span="10">小类别</el-col>
+          <el-col :span="14">{{ form.xtype ? form.xtype : `&nbsp;` }}</el-col>
           <el-col :span="10">企业主页</el-col>
           <el-col :span="14">{{ form.homepage ? form.homepage : `&nbsp;` }}</el-col>
+        </el-col>
+        <el-col :span="14" style="margin-bottom:2%;">
+          <el-col :span="5"> 地址</el-col>
+          <el-col :span="18"> {{ form.addr ? form.addr : `&nbsp;` }} </el-col>
+          <el-col :span="1"> &nbsp;</el-col>
         </el-col>
         <el-col :span="14" style="margin-bottom:2%;">
           <el-col :span="5"> 简介</el-col>
@@ -93,24 +106,14 @@
           <el-row style="margin-bottom:10%;">
             <el-col :span="5">审核结果</el-col>
             <el-col :span="18">
-              <div v-if="form.status === 0">
-                <el-radio v-model="reply.status" label="1" border><font style="color: #36e236;font-weight: 600;">通过</font></el-radio>
-                <el-radio v-model="reply.status" label="2" border><font style="color: rgb(244, 12, 12);font-weight: 600;">拒绝</font></el-radio>
+              <div v-if="form.state === '0'">
+                <el-radio v-model="reply.state" label="1" border><font style="color: #36e236;font-weight: 600;">通过</font></el-radio>
+                <el-radio v-model="reply.state" label="2" border><font style="color: rgb(244, 12, 12);font-weight: 600;">拒绝</font></el-radio>
               </div>
               <div v-else>
-                <font :style="form.status === 1 ? 'color: #36e236;font-weight: 600' : 'color: rgb(244, 12, 12);font-weight: 600'">
-                  {{ form.status === 1 ? '审核通过' : '已拒绝' }}
+                <font :style="form.state === '1' ? 'color: #36e236;font-weight: 600' : 'color: rgb(244, 12, 12);font-weight: 600'">
+                  {{ form.state === '1' ? '审核通过' : '已拒绝' }}
                 </font>
-              </div>
-            </el-col>
-            <el-col :span="1"> &nbsp;</el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="5">审核回复</el-col>
-            <el-col :span="18">
-              <el-input v-if="form.status === 0" type="textarea" placeholder="审核回复" v-model="reply.description" :autosize="{ minRows: 5 }"></el-input>
-              <div v-else>
-                {{ reply.description }}
               </div>
             </el-col>
             <el-col :span="1"> &nbsp;</el-col>
@@ -118,6 +121,7 @@
         </el-col>
       </el-row>
       <span slot="footer" class="dialog-footer">
+        <el-button type="primary" v-if="form.state === '0'" @click="toReview()">回复审核</el-button>
         <el-button @click="closeAlert()">取 消</el-button>
       </span>
     </el-dialog>
@@ -138,11 +142,12 @@ export default {
   data() {
     return {
       list: [
-        { id: 1, name: 'name111111111111111', contact: 'name11111111111111', addr: 'value11111111111111', legal: 'value11111111111111111', status: 0 },
-        { id: 2, name: 'name222222222222222', contact: 'name22222222222222', addr: 'value22222222222222', legal: 'value22222222222222222', status: 1 },
-        { id: 3, name: 'name3', contact: 'name1', addr: 'value31', legal: 'value32', status: 2 },
+        { id: 1, name: 'name111111111111111', contact: 'name11111111111111', addr: 'value11111111111111', legal: 'value11111111111111111', state: 0 },
+        { id: 2, name: 'name222222222222222', contact: 'name22222222222222', addr: 'value22222222222222', legal: 'value22222222222222222', state: 1 },
+        { id: 3, name: 'name3', contact: 'name1', addr: 'value31', legal: 'value32', state: 2 },
       ],
       tableProps: [], //输出字段存放位置
+      entTypeList: [],
       currentPage: 1,
       totalRow: 1,
       searchInfo: {
@@ -163,10 +168,14 @@ export default {
     };
   },
   computed: {},
-  created() {
+  async created() {
     this.searchTableSetting(`check`);
+    this.toSearch();
+    let { dataList } = await this.entTypeOperation({ data: { skip: 0, limit: 10000 }, type: 'entTypeList' });
+    this.$set(this, `entTypeList`, dataList);
   },
   methods: {
+    ...mapActions(['enterpriseOperation', 'entTypeOperation']),
     searchTableSetting(type) {
       if (type !== '') {
         let tableprops = _.get(tableConfig, type, []);
@@ -182,9 +191,18 @@ export default {
         this.currentPage = item ? item : 1;
       }
       let skip = (this.currentPage - 1) * this.searchInfo.limit;
-      // let { returnDataList, totalRow } = await this.getMenuList(this.searchInfo);
-      // this.$set(this, `list`, returnDataList);
-      // this.$set(this, `totalRow`, totalRow);
+      let newObject = { ...this.searchInfo, skip: skip };
+      let { totalRow, dataList = [], rescode } = await this.enterpriseOperation({ data: newObject, type: 'enterpriseList' });
+      this.$set(this, `list`, dataList ? (dataList = this.$listImg(dataList, this.$domain)) : []);
+      this.$set(this, `totalRow`, totalRow);
+    },
+    async toReview() {
+      if (this.reply.state) {
+        let data = { id: this.form.id, ...this.reply };
+        console.log(data);
+        await this.enterpriseOperation({ data: data, type: 'enterpriseReview' });
+        this.closeAlert();
+      }
     },
     async openAlert(type, item) {
       this.$set(this, `dialogTitle`, `企业${type === 'check' ? '审核' : '详情'}`);
@@ -198,6 +216,9 @@ export default {
           .then(async () => {
             //确认删除
             console.log(`delete${this.operationId}`);
+            await this.enterpriseOperation({ data: { id: this.operationId }, type: 'enterpriseDelete' });
+            this.closeAlert();
+            this.toSearch();
           })
           .catch(() => {
             //不删除

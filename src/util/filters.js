@@ -14,7 +14,7 @@ const filters = {
       //2-1判断作为过滤条件的值是否正常
       if (value !== null || value !== undefined) {
         //3声明返回变量
-        let returnText = 'undefined';
+        let returnText = 'none';
         //4循环出数据集中的项
         for (const item of data) {
           //5取出数据源中的searchItem和value比较

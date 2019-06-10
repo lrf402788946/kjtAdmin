@@ -32,13 +32,13 @@
         </el-row>
         <!--pages-->
         <el-row>
-          <el-col :span="18">&nbsp;</el-col>
-          <el-col :span="6" style="margin-top:2%">
+          <el-col :span="14">&nbsp;</el-col>
+          <el-col :span="8" style="margin-top:2%">
             <b-pagination
               v-if="list.length > 0"
               v-model="currentPage"
               :total-rows="totalRow"
-              :limit="searchInfo.limit"
+              :limit="5"
               @change="toSearch"
               first-text="首页"
               prev-text="<"
@@ -112,8 +112,10 @@ export default {
   computed: {},
   created() {
     this.searchTableSetting(`productType`);
+    // this.toSearch();
   },
   methods: {
+    ...mapActions(['proTypeOperation']),
     searchTableSetting(type) {
       if (type !== '') {
         let tableprops = _.get(tableConfig, type, []);
@@ -129,9 +131,27 @@ export default {
         this.currentPage = item ? item : 1;
       }
       let skip = (this.currentPage - 1) * this.searchInfo.limit;
-      // let { returnDataList, totalRow } = await this.getMenuList(this.searchInfo);
-      // this.$set(this, `list`, returnDataList);
-      // this.$set(this, `totalRow`, totalRow);
+      let newObject = { ...this.searchInfo, skip: skip };
+      let { totalRow, dataList = [], rescode } = await this.proTypeOperation({ data: newObject, type: 'proTypeList' });
+      this.$set(this, `list`, dataList);
+      this.$set(this, `totalRow`, totalRow);
+    },
+    toOperation() {
+      this.$refs.form.validate(valid => {
+        if (valid) {
+          this.operation();
+        } else {
+          return false;
+        }
+      });
+    },
+    async operation() {
+      let has_id = Object.keys(this.form).filter(item => item === 'id').length;
+      let type;
+      has_id > 0 ? (type = 'proTypeEdit') : (type = 'proTypeSave');
+      let result = await this.proTypeOperation({ data: this.form, type: type });
+      this.toSearch();
+      this.closeAlert();
     },
     async openAlert(type, item) {
       this.$set(this, `dialogTitle`, `产品类别${type === 'delete' ? '删除' : type === 'add' ? '添加' : '修改'}`);
@@ -148,6 +168,9 @@ export default {
           .then(async () => {
             //确认删除
             console.log(`delete${this.operationId}`);
+            await this.proTypeOperation({ data: { id: this.operationId }, type: 'proTypeDelete' });
+            this.closeAlert();
+            this.toSearch();
           })
           .catch(() => {
             //不删除

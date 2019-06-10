@@ -32,13 +32,13 @@
         </el-row>
         <!--pages-->
         <el-row>
-          <el-col :span="18">&nbsp;</el-col>
-          <el-col :span="6" style="margin-top:2%">
+          <el-col :span="14">&nbsp;</el-col>
+          <el-col :span="8" style="margin-top:2%">
             <b-pagination
               v-if="list.length > 0"
               v-model="currentPage"
               :total-rows="totalRow"
-              :limit="searchInfo.limit"
+              :limit="5"
               @change="toSearch"
               first-text="首页"
               prev-text="<"

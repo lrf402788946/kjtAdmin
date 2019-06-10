@@ -61,13 +61,13 @@
         </el-row>
         <!--pages-->
         <el-row>
-          <el-col :span="18">&nbsp;</el-col>
-          <el-col :span="6" style="margin-top:2%">
+          <el-col :span="14">&nbsp;</el-col>
+          <el-col :span="8" style="margin-top:2%">
             <b-pagination
               v-if="list.length > 0"
               v-model="currentPage"
               :total-rows="totalRow"
-              :limit="searchInfo.limit"
+              :limit="5"
               @change="toSearch"
               first-text="首页"
               prev-text="<"
@@ -172,8 +172,10 @@ export default {
   computed: {},
   created() {
     this.searchTableSetting(`already`);
+    this.toSearch();
   },
   methods: {
+    ...mapActions(['productOperation']),
     searchTableSetting(type) {
       if (type !== '') {
         let tableprops = _.get(tableConfig, type, []);
@@ -189,17 +191,15 @@ export default {
         this.currentPage = item ? item : 1;
       }
       let skip = (this.currentPage - 1) * this.searchInfo.limit;
-      // let { returnDataList, totalRow } = await this.getMenuList(this.searchInfo);
-      // this.$set(this, `list`, returnDataList);
-      // this.$set(this, `totalRow`, totalRow);
+      let newObject = { ...this.searchInfo, skip: skip };
+      let { totalRow, dataList = [], rescode } = await this.productOperation({ data: newObject, type: 'productList' });
+      this.$set(this, `list`, dataList ? (dataList = this.$listImg(dataList, this.$domain)) : []);
+      this.$set(this, `totalRow`, totalRow);
     },
     async openAlert(type, item) {
       this.$set(this, `dialogTitle`, `企业类别${type === 'delete' ? '删除' : type === 'add' ? '添加' : '修改'}`);
       if (type === 'edit') {
-        this.$set(this, `form`, JSON.parse(JSON.stringify(item)));
-      } else if (type === 'add') {
-        this.form = {};
-        type === 'add' ? (this.updateEdit = false) : '';
+        this.$router.push({ path: `/product/addOrEdit?id=${item.id}` });
       } else {
         this.operationId = item;
         await this.$confirm('确认要删除该数据吗?', `删除提示`, {
@@ -208,6 +208,9 @@ export default {
           .then(async () => {
             //确认删除
             console.log(`delete${this.operationId}`);
+            await this.productOperation({ data: { id: this.operationId }, type: 'productDelete' });
+            this.closeAlert();
+            this.toSearch();
           })
           .catch(() => {
             //不删除
